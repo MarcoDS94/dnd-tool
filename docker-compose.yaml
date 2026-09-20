@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: . # Usa il Dockerfile che abbiamo appena creato
+    ports:
+      - "8080:8080"
+    volumes:
+      # Sincronizza in tempo reale i file locali con quelli nel container.
+      # Se modifichi un file, l'API si aggiorna istantaneamente.
+      - .:/var/www/html
+    environment:
+      - APP_ENV=dev # Forza l'ambiente di sviluppo in locale
+      - DATABASE_URL=postgresql://api_user:secret123@db:5432/api_db?serverVersion=16&charset=utf8
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: api_db
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: secret123
+    volumes:
+      - db-data:/var/lib/postgresql/data # Salva i dati del DB anche se spegni il container
+
+volumes:
+  db-data:
